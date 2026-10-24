@@ -1,0 +1,35 @@
+digraph Components { rankdir=LR;graph [bgcolor="#FFFFFF", pad="0.32", nodesep="0.35", ranksep="0.60", fontname="Arial", labeljust="l", labelloc="t", fontsize=20, splines=polyline]; node [shape=plain,fontname="Arial",fontsize=11]; edge [fontname="Arial", fontsize=10,color="#607080", arrowsize=0.7];label="03 · Component architecture | Flutter app and local platform services";
+ node [shape=box,style="rounded,filled",fontname="Arial",color="#A2B6B2",fillcolor="#EEF5F2",fontsize=13,margin="0.22,0.17"];
+ subgraph cluster_flutter {label="FocusFlow Flutter app (Dart)";style="rounded,filled";fillcolor="#F8FBFD";color="#BCD0D8";
+ view [label="Views
+Home · Session · Reflection
+History · Insights · Tips · Settings",fillcolor="#DBEBF3"];
+ pres [label="Presenters
+SessionPresenter
+ReflectionPresenter"];
+ analytics [label="Analytics
+weeklyFocusTotals
+calculateGentleStreak"];
+ appsvc [label="AppServices + repositories
+Session · Distraction · Reflection"];
+ settings [label="FocusSettingsRepository
+SharedPreferencesKeysStore"];
+ reminder [label="ReminderScheduler
+SystemReminderScheduler"];
+ }
+ sqlite [label="Private on-device SQLite
+focusflow.db",fillcolor="#FFECD8"];
+ prefs [label="Device shared preferences
+Default duration + reminder settings",fillcolor="#FFECD8"];
+ os [label="Android notification service
+Permission + daily local reminder",fillcolor="#FFECD8"];
+ view->pres [label="user actions"];
+ view->analytics [label="read sessions"];
+ view->appsvc [label="history/insights"];
+ pres->appsvc [label="CRUD"];
+ appsvc->sqlite [label="sqflite"];
+ view->settings [label="settings UI"];
+ settings->prefs [label="shared_preferences"];
+ view->reminder [label="enable/schedule/cancel"];
+ reminder->os [label="local notifications plugin"];
+ }

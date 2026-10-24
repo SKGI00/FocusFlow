@@ -1,0 +1,29 @@
+digraph Deployment { rankdir=LR;graph [bgcolor="#FFFFFF", pad="0.32", nodesep="0.35", ranksep="0.60", fontname="Arial", labeljust="l", labelloc="t", fontsize=20, splines=polyline]; node [shape=plain,fontname="Arial",fontsize=11]; edge [fontname="Arial", fontsize=10,color="#607080", arrowsize=0.7];label="04 · Deployment | tested Android emulator and build-time developer tooling";
+ node [shape=box,style="rounded,filled",fontname="Arial",fontsize=12,color="#AEC0BC",fillcolor="#F2F8F6",margin="0.25,0.20"];
+ subgraph cluster_dev {label="Developer workstation · Windows";style="rounded,dashed";color="#BCD1D9";
+ dev [label="VS Code + Flutter/Dart SDK
+Android Studio / SDK
+PowerShell / emulator launch",fillcolor="#DBEBF3"];
+ git [label="Local Git checkout + Dart tests"];
+ }
+ subgraph cluster_emu {label="Android emulator · API 37 (verified target)";style="rounded,filled";fillcolor="#F8FBFD";color="#BCD1D9";
+ flutter [label="Android app process
+Flutter UI, MVP presenters
+Repositories and analytics",fillcolor="#DDEDE5"];
+ sqlite [label="App-private SQLite file
+focusflow.db",fillcolor="#FFECD8"];
+ prefs [label="Local preference store
+SharedPreferences",fillcolor="#FFECD8"];
+ os [label="Android system
+Notifications and scheduler",fillcolor="#FFECD8"];
+ flutter->sqlite [label="sqflite"];
+ flutter->prefs [label="shared_preferences"];
+ flutter->os [label="flutter_local_notifications"];
+ }
+ ci [label="GitHub Actions CI
+flutter analyze + flutter test
+Build-time only; NOT app backend",fillcolor="#EEF2FF"];
+ dev->git [label="develop and test"];
+ dev->flutter [label="flutter run / debug install"];
+ git->ci [label="push / trigger CI"];
+ }
