@@ -236,9 +236,12 @@ class _InsightsScreenState extends State<InsightsScreen> {
                             children: [
                               Icon(Icons.spa_outlined, color: colors.primary),
                               const SizedBox(width: 9),
-                              Text(
-                                'Your gentle rhythm',
-                                style: fonts.titleLarge,
+                              Expanded(
+                                child: Text(
+                                  'Your gentle rhythm',
+                                  style: fonts.titleLarge,
+                                  softWrap: true,
+                                ),
                               ),
                             ],
                           ),

@@ -88,7 +88,10 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
                       crossAxisCount: columns,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
-                      mainAxisExtent: 80,
+                      mainAxisExtent:
+                          MediaQuery.textScalerOf(context).scale(14) > 19
+                          ? 112
+                          : 80,
                     ),
                     itemBuilder: (context, index) {
                       final label = ReflectionPresenter.feelingLabels[index];
