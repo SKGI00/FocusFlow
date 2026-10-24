@@ -31,7 +31,7 @@ void main() {
     return Session(startTime: DateTime(2026, 10, 24, 9), plannedMinutes: 25);
   }
 
-  test('T1: save and retrieve a focus session', () async {
+  test('D1: save and retrieve a focus session', () async {
     final id = await sessions.insert(sampleSession());
     final saved = await sessions.findById(id);
 
@@ -40,7 +40,7 @@ void main() {
     expect(saved.completed, false);
   });
 
-  test('T2: distractions belong to the correct session', () async {
+  test('D2: distractions belong to the correct session', () async {
     final sessionId = await sessions.insert(sampleSession());
 
     for (var i = 0; i < 3; i++) {
@@ -56,7 +56,7 @@ void main() {
     expect(await distractions.countForSession(sessionId), 3);
   });
 
-  test('T3: deleting a session removes its distractions', () async {
+  test('D3: deleting a session removes its distractions', () async {
     final sessionId = await sessions.insert(sampleSession());
 
     await distractions.insert(
@@ -68,7 +68,7 @@ void main() {
     expect(await distractions.countForSession(sessionId), 0);
   });
 
-  test('T4: only one reflection is allowed per session', () async {
+  test('D4: only one reflection is allowed per session', () async {
     final sessionId = await sessions.insert(sampleSession());
 
     final reflection = Reflection(
@@ -85,7 +85,7 @@ void main() {
     );
   });
 
-  test('T5: database rejects invalid session duration', () async {
+  test('D5: database rejects invalid session duration', () async {
     final db = await helper.database;
 
     await expectLater(

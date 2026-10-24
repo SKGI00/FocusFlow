@@ -60,11 +60,11 @@ Milestone 1 contained an architectural inconsistency between the MVP class diagr
 
 | Test ID | Verification objective | Result |
 |---|---|---|
-| T1 | Session insertion and retrieval | PASS |
-| T2 | Distraction records linked to a session | PASS |
-| T3 | Cascading deletion of associated distractions | PASS |
-| T4 | One-reflection-per-session constraint | PASS |
-| T5 | Rejection of invalid session duration | PASS |
+| D1 | Session insertion and retrieval | PASS |
+| D2 | Distraction records linked to a session | PASS |
+| D3 | Cascading deletion of associated distractions | PASS |
+| D4 | One-reflection-per-session constraint | PASS |
+| D5 | Rejection of invalid session duration | PASS |
 
 **Test execution:** `flutter test test/database_test.dart`  
 **Outcome:** 5/5 tests passed.
