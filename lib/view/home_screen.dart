@@ -4,9 +4,11 @@ import '../app_services.dart';
 import '../model/models.dart';
 import 'flow_buddy.dart';
 import 'history_screen.dart';
+import 'insights_screen.dart';
 import 'session_screen.dart';
 import 'tips_screen.dart';
 
+/// A reassuring first screen with one primary action and low reading load.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.services});
 
@@ -19,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Session>> _sessions = widget.services.sessions.all();
 
-  void _refresh() {
+  void _refreshProgress() {
     setState(() {
       _sessions = widget.services.sessions.all();
     });
@@ -31,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => SessionScreen(services: widget.services),
       ),
     );
-    if (mounted) _refresh();
+    if (mounted) _refreshProgress();
   }
 
   Future<void> _openHistory() async {
@@ -40,13 +42,27 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => HistoryScreen(services: widget.services),
       ),
     );
-    if (mounted) _refresh();
+    if (mounted) _refreshProgress();
+  }
+
+  void _openInsights() {
+    Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => InsightsScreen(services: widget.services),
+      ),
+    );
+  }
+
+  void _openTips() {
+    Navigator.of(
+      context,
+    ).push<void>(MaterialPageRoute<void>(builder: (_) => const TipsScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final fonts = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -54,92 +70,60 @@ class _HomeScreenState extends State<HomeScreen> {
           'FocusFlow',
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
-        actions: [
-          IconButton(
-            tooltip: 'Study tips',
-            icon: const Icon(Icons.lightbulb_outline_rounded),
-            onPressed: () => Navigator.of(context).push<void>(
-              MaterialPageRoute<void>(builder: (_) => const TipsScreen()),
-            ),
-          ),
-          const SizedBox(width: 6),
-        ],
       ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
           children: [
-            Text('Welcome to your space', style: fonts.headlineMedium),
-            const SizedBox(height: 6),
-            Text(
-              'Small steps. Your pace. No pressure to be perfect.',
-              style: fonts.bodyLarge,
-            ),
-            const SizedBox(height: 22),
+            // Keep the familiar, reassuring companion and headline.
             Container(
-              padding: const EdgeInsets.all(22),
+              padding: const EdgeInsets.fromLTRB(22, 25, 22, 22),
               decoration: BoxDecoration(
-                color: colors.primaryContainer,
-                borderRadius: BorderRadius.circular(30),
+                color: scheme.primaryContainer,
+                borderRadius: BorderRadius.circular(28),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
                     children: [
-                      const FlowBuddy(size: 78),
-                      const SizedBox(width: 12),
+                      const ExcludeSemantics(child: FlowBuddy(size: 82)),
+                      const SizedBox(width: 14),
                       Expanded(
                         child: Text(
                           'A calmer moment starts here',
-                          style: fonts.titleLarge?.copyWith(
-                            color: colors.onPrimaryContainer,
+                          style: text.titleLarge?.copyWith(
+                            color: scheme.onPrimaryContainer,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 15),
-                  Text(
-                    'Choose a focus time, notice distractions gently, '
-                    'and reflect only if you want to.',
-                    style: fonts.bodyLarge?.copyWith(
-                      color: colors.onPrimaryContainer,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: _openFocus,
-                      icon: const Icon(Icons.play_arrow_rounded),
-                      label: const Text('Start a focus session'),
-                    ),
+                  const SizedBox(height: 24),
+                  FilledButton.icon(
+                    onPressed: _openFocus,
+                    icon: const Icon(Icons.play_arrow_rounded),
+                    label: const Text('Start focus session'),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            Text('Your progress', style: fonts.titleLarge),
-            const SizedBox(height: 12),
+            Text('Your progress', style: text.titleLarge),
+            const SizedBox(height: 10),
             FutureBuilder<List<Session>>(
               future: _sessions,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return _ProgressTile(
-                    message: 'Your saved sessions could not be loaded.',
-                    caption: 'Try opening this screen again.',
-                    icon: Icons.info_outline,
-                  );
+                  return const _ProgressNotice(message: 'Progress unavailable');
                 }
                 if (!snapshot.hasData) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: CircularProgressIndicator(),
-                    ),
+                  return const Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Center(child: CircularProgressIndicator()),
                   );
                 }
+
                 final records = snapshot.data!;
                 final now = DateTime.now();
                 final weekStart = DateTime(
@@ -153,40 +137,60 @@ class _HomeScreenState extends State<HomeScreen> {
                       0,
                       (sum, session) => sum + (session.actualSeconds ?? 0),
                     );
-                final focusText = seconds >= 60
+                final focusTime = seconds >= 60
                     ? '${seconds ~/ 60} min'
                     : '$seconds sec';
-                return _ProgressTile(
-                  message: focusText,
-                  caption:
-                      'Focus recorded this week · ${records.length} saved sessions in total',
-                  icon: Icons.auto_graph_rounded,
+
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 18,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _MiniStat(
+                            value: focusTime,
+                            label: 'this week',
+                          ),
+                        ),
+                        Container(
+                          width: 1,
+                          height: 42,
+                          color: scheme.outlineVariant,
+                        ),
+                        Expanded(
+                          child: _MiniStat(
+                            value: '${records.length}',
+                            label: 'sessions saved',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
             ),
-            const SizedBox(height: 22),
-            Text('Explore', style: fonts.titleLarge),
-            const SizedBox(height: 12),
-            _FeatureTile(
+            const SizedBox(height: 18),
+            Text('Explore', style: text.titleLarge),
+            const SizedBox(height: 10),
+            _HomeLink(
+              icon: Icons.bar_chart_rounded,
+              title: 'Weekly insights',
+              onTap: _openInsights,
+            ),
+            const SizedBox(height: 10),
+            _HomeLink(
               icon: Icons.history_rounded,
-              title: 'Session history',
-              description: 'See your sessions and distractions.',
+              title: 'History',
               onTap: _openHistory,
             ),
             const SizedBox(height: 10),
-            _FeatureTile(
+            _HomeLink(
               icon: Icons.lightbulb_outline_rounded,
-              title: 'Gentle study tips',
-              description: 'Helpful ideas, available offline.',
-              onTap: () => Navigator.of(context).push<void>(
-                MaterialPageRoute<void>(builder: (_) => const TipsScreen()),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Text(
-              'Your focus records stay on this device. No account needed.',
-              textAlign: TextAlign.center,
-              style: fonts.bodySmall,
+              title: 'Study tips',
+              onTap: _openTips,
             ),
           ],
         ),
@@ -195,86 +199,66 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _ProgressTile extends StatelessWidget {
-  const _ProgressTile({
-    required this.message,
-    required this.caption,
-    required this.icon,
-  });
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({required this.value, required this.label});
 
-  final String message;
-  final String caption;
-  final IconData icon;
+  final String value;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final fonts = Theme.of(context).textTheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 25,
-              backgroundColor: colors.secondaryContainer,
-              child: Icon(icon, color: colors.onSecondaryContainer),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(message, style: fonts.titleLarge),
-                  const SizedBox(height: 4),
-                  Text(caption, style: fonts.bodyMedium),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+    final text = Theme.of(context).textTheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(value, style: text.titleLarge),
+        const SizedBox(height: 3),
+        Text(label, style: text.bodyMedium, textAlign: TextAlign.center),
+      ],
     );
   }
 }
 
-class _FeatureTile extends StatelessWidget {
-  const _FeatureTile({
+class _ProgressNotice extends StatelessWidget {
+  const _ProgressNotice({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(padding: const EdgeInsets.all(18), child: Text(message)),
+    );
+  }
+}
+
+class _HomeLink extends StatelessWidget {
+  const _HomeLink({
     required this.icon,
     required this.title,
-    required this.description,
     required this.onTap,
   });
 
   final IconData icon;
   final String title;
-  final String description;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final fonts = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
           child: Row(
             children: [
-              Icon(icon, color: colors.primary, size: 29),
-              const SizedBox(width: 15),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: fonts.titleMedium),
-                    const SizedBox(height: 3),
-                    Text(description, style: fonts.bodyMedium),
-                  ],
-                ),
-              ),
+              Icon(icon, size: 28, color: scheme.primary),
+              const SizedBox(width: 16),
+              Expanded(child: Text(title, style: text.titleMedium)),
               const Icon(Icons.chevron_right_rounded),
             ],
           ),

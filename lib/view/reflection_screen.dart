@@ -49,54 +49,116 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
             children: [
               Center(
                 child: CircleAvatar(
-                  radius: 36,
+                  radius: 32,
                   backgroundColor: colors.primaryContainer,
                   child: Icon(
                     Icons.favorite_border_rounded,
-                    size: 35,
+                    size: 32,
                     color: colors.onPrimaryContainer,
                   ),
                 ),
               ),
               const SizedBox(height: 14),
               Text(
-                'How did it feel?',
+                'How did your focus session go?',
                 style: fonts.headlineMedium,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 7),
               Text(
-                'There is no right answer. Reflect as much or as little as you like.',
+                'Optional — you can skip this.',
                 textAlign: TextAlign.center,
-                style: fonts.bodyLarge,
+                style: fonts.bodyMedium,
+              ),
+              const SizedBox(height: 23),
+              // Four compact options on standard phones; two columns when the
+              // screen or text scale is larger, to avoid overflow.
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final columns =
+                      constraints.maxWidth < 340 ||
+                          MediaQuery.textScalerOf(context).scale(14) > 19
+                      ? 2
+                      : 4;
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: ReflectionPresenter.feelingLabels.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columns,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      mainAxisExtent: 80,
+                    ),
+                    itemBuilder: (context, index) {
+                      final label = ReflectionPresenter.feelingLabels[index];
+                      // Keep the NZ name in stored history; display the gesture
+                      // only once, beneath the word on this compact control.
+                      final displayLabel = label == 'Choice 🤙'
+                          ? 'Choice'
+                          : label;
+                      final value = ReflectionPresenter.feelingRatings[index];
+                      final isSelected = _presenter.rating == value;
+                      return Semantics(
+                        button: true,
+                        selected: isSelected,
+                        label: '$label session rating',
+                        child: Material(
+                          color: isSelected
+                              ? colors.primaryContainer
+                              : colors.surface,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            side: BorderSide(
+                              color: isSelected
+                                  ? colors.primary
+                                  : colors.outlineVariant,
+                            ),
+                          ),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(14),
+                            onTap: _presenter.isSaving
+                                ? null
+                                : () => _presenter.selectFeeling(value),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 2,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    displayLabel,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                    style: fonts.labelMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  ExcludeSemantics(
+                                    child: Text(
+                                      ReflectionPresenter.feelingEmoji[index],
+                                      style: const TextStyle(fontSize: 21),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
               const SizedBox(height: 24),
-              Text('Pick a feeling (optional)', style: fonts.titleMedium),
+              Text('What helped or distracted you?', style: fonts.titleMedium),
               const SizedBox(height: 10),
               Wrap(
                 spacing: 8,
-                runSpacing: 9,
-                children: [
-                  for (
-                    var index = 0;
-                    index < ReflectionPresenter.feelingLabels.length;
-                    index++
-                  )
-                    ChoiceChip(
-                      label: Text(ReflectionPresenter.feelingLabels[index]),
-                      selected: _presenter.rating == index + 1,
-                      onSelected: _presenter.isSaving
-                          ? null
-                          : (_) => _presenter.selectFeeling(index + 1),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 22),
-              Text('What helped, or got in the way?', style: fonts.titleMedium),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 9,
+                runSpacing: 10,
                 children: [
                   for (final tag in ReflectionPresenter.supportTags)
                     FilterChip(
@@ -116,8 +178,7 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
                 textCapitalization: TextCapitalization.sentences,
                 onChanged: _presenter.setNote,
                 decoration: const InputDecoration(
-                  labelText: 'A note to yourself (optional)',
-                  hintText: 'Something I noticed today…',
+                  labelText: 'Add a note (optional)',
                   border: OutlineInputBorder(),
                 ),
               ),

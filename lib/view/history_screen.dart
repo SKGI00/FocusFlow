@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_services.dart';
 import '../model/models.dart';
+import '../presenter/reflection_presenter.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key, required this.services});
@@ -156,15 +157,10 @@ class HistoryScreen extends StatelessWidget {
                                 return const SizedBox.shrink();
                               }
                               final reflection = saved.data!;
-                              final feeling = reflection.rating == null
-                                  ? 'Not rated'
-                                  : [
-                                      'Hard',
-                                      'Tricky',
-                                      'Okay',
-                                      'Good',
-                                      'Great',
-                                    ][reflection.rating! - 1];
+                              final feeling =
+                                  ReflectionPresenter.labelForRating(
+                                    reflection.rating,
+                                  );
                               return Padding(
                                 padding: const EdgeInsets.only(top: 8),
                                 child: Text(

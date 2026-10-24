@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Original, decorative FocusFlow companion. No external assets or network calls.
+/// Original, non-animated FocusFlow companion. No network or external assets.
 class FlowBuddy extends StatelessWidget {
   const FlowBuddy({super.key, this.size = 76, this.resting = false});
 
@@ -23,10 +23,10 @@ class FlowBuddy extends StatelessWidget {
                 width: size * 0.74,
                 height: size * 0.66,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFC7D5F4),
+                  color: const Color(0xFFF7E3CC),
                   borderRadius: BorderRadius.circular(size * 0.35),
                   border: Border.all(
-                    color: const Color(0xFF738CC4),
+                    color: const Color(0xFF9A7861),
                     width: size * 0.018,
                   ),
                 ),
@@ -36,7 +36,7 @@ class FlowBuddy extends StatelessWidget {
                     style: TextStyle(
                       fontSize: size * 0.18,
                       fontWeight: FontWeight.w900,
-                      color: const Color(0xFF314977),
+                      color: const Color(0xFF493D34),
                     ),
                   ),
                 ),
@@ -49,7 +49,7 @@ class FlowBuddy extends StatelessWidget {
                 angle: -0.35,
                 child: Icon(
                   Icons.eco_rounded,
-                  color: const Color(0xFF4C9273),
+                  color: const Color(0xFF547958),
                   size: size * 0.37,
                 ),
               ),

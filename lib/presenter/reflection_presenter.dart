@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_initializing_formals
 import 'package:flutter/foundation.dart';
 
 import '../data/repositories.dart';
@@ -8,9 +9,7 @@ class ReflectionPresenter extends ChangeNotifier {
     required this.sessionId,
     required ReflectionRepository repository,
     DateTime Function()? clock,
-  }) : // Keep the public `repository:` argument while storing it privately.
-       // ignore: prefer_initializing_formals
-       _repository = repository,
+  }) : _repository = repository,
        _clock = clock ?? DateTime.now;
 
   final int sessionId;
@@ -18,19 +17,41 @@ class ReflectionPresenter extends ChangeNotifier {
   final DateTime Function() _clock;
 
   static const List<String> feelingLabels = [
-    'Hard',
-    'Tricky',
+    'Difficult',
     'Okay',
     'Good',
-    'Great',
+    'Choice 🤙',
   ];
   static const List<String> supportTags = [
     'Quiet space',
     'Music',
-    'Phone away',
-    'Short break',
+    'Mobile',
+    'Quick break',
     'Tired',
+    'Noise',
   ];
+
+  // Keep the original SQLite rating scale (1–5), so existing data remains
+  // readable. The redesigned interface only offers 1, 3, 4 and 5.
+  static const List<int> feelingRatings = [1, 3, 4, 5];
+  static const List<String> feelingEmoji = ['😓', '🙂', '😊', '🤙'];
+
+  static String labelForRating(int? rating) {
+    switch (rating) {
+      case 1:
+        return 'Difficult';
+      case 2:
+        return 'Tricky (earlier option)';
+      case 3:
+        return 'Okay';
+      case 4:
+        return 'Good';
+      case 5:
+        return 'Choice 🤙';
+      default:
+        return 'Not rated';
+    }
+  }
 
   final Set<String> _tags = {};
   int? _rating;
@@ -44,7 +65,7 @@ class ReflectionPresenter extends ChangeNotifier {
   String? get error => _error;
 
   void selectFeeling(int value) {
-    if (value < 1 || value > 5 || _saving) return;
+    if (!feelingRatings.contains(value) || _saving) return;
     _rating = _rating == value ? null : value;
     _error = null;
     notifyListeners();
@@ -67,7 +88,7 @@ class ReflectionPresenter extends ChangeNotifier {
     if (_saving) return false;
     final note = _note.trim();
     if (_rating == null && _tags.isEmpty && note.isEmpty) {
-      _error = 'Choose a feeling, tag or note, or tap Skip.';
+      _error = 'Choose an option, add a note, or tap Skip.';
       notifyListeners();
       return false;
     }

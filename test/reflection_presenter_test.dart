@@ -55,14 +55,54 @@ void main() {
   });
 
   test('R3: selected feeling and tag can be removed', () {
-    presenter.selectFeeling(2);
-    presenter.toggleTag('Phone away');
-    expect(presenter.rating, 2);
-    expect(presenter.tags, contains('Phone away'));
+    presenter.selectFeeling(3);
+    presenter.toggleTag('Mobile');
+    expect(presenter.rating, 3);
+    expect(presenter.tags, contains('Mobile'));
 
-    presenter.selectFeeling(2);
-    presenter.toggleTag('Phone away');
+    presenter.selectFeeling(3);
+    presenter.toggleTag('Mobile');
     expect(presenter.rating, isNull);
     expect(presenter.tags, isEmpty);
+  });
+
+  test('R4: four readable focus ratings preserve original SQLite values', () {
+    expect(ReflectionPresenter.feelingLabels, [
+      'Difficult',
+      'Okay',
+      'Good',
+      'Choice 🤙',
+    ]);
+    expect(ReflectionPresenter.feelingRatings, [1, 3, 4, 5]);
+    expect(ReflectionPresenter.feelingEmoji, ['😓', '🙂', '😊', '🤙']);
+    expect(ReflectionPresenter.labelForRating(2), 'Tricky (earlier option)');
+    presenter.selectFeeling(2); // Historical value is not a new UI option.
+    expect(presenter.rating, isNull);
+    presenter.selectFeeling(5);
+    expect(presenter.rating, 5);
+    expect(ReflectionPresenter.labelForRating(presenter.rating), 'Choice 🤙');
+  });
+
+  test('R5: support tags match the redesigned reflection', () {
+    expect(ReflectionPresenter.supportTags, [
+      'Quiet space',
+      'Music',
+      'Mobile',
+      'Quick break',
+      'Tired',
+      'Noise',
+    ]);
+    presenter.toggleTag('Quick break');
+    presenter.toggleTag('Noise');
+    expect(presenter.tags, containsAll(['Quick break', 'Noise']));
+  });
+
+  test('R6: NZ Choice option saves and appears in history mapping', () async {
+    presenter.selectFeeling(5);
+    presenter.toggleTag('Quiet space');
+    expect(await presenter.save(), true);
+    final saved = await reflections.forSession(sessionId);
+    expect(saved?.rating, 5);
+    expect(ReflectionPresenter.labelForRating(saved?.rating), 'Choice 🤙');
   });
 }
