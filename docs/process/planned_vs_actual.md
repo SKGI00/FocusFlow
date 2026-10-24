@@ -1,27 +1,31 @@
-# FocusFlow — Planned versus actual development (M1 → M2)
+# FocusFlow — Planned versus actual (M1 to M2)
 
-**Status:** Working evidence document, dated 25 October 2026 NZDT. This is NOT a claim that all tasks are complete. Replace draft statuses with verified Git commits, tests, screenshots, and board records before submitting.
+**Updated:** 25 October 2026 (NZDT)  
+**Basis:** Milestone 1 submitted Gantt, 24–25 October source/CI history, developer-performed Android verification.
 
-## Important date discrepancy in Milestone 1
+## Discrepancy disclosed
 
-The original M1 Gantt (Figure 5, section 2.3) shows an **August–October 2025** calendar. The verified development work described below occurred in **October 2026**. Keep the original M1 figure as proposed evidence; do **not** edit its dates to create a false plan. In the report, acknowledge this planning/date inconsistency and use the M1 **phase sequence** as the baseline for a clear planned-versus-actual discussion. If this was a drafting error in M1, state that honestly.
+The submitted Milestone 1 Figure 5 labels its planned schedule **August–October 2026**, as verified directly from page 10 of the submitted report. The actual recorded implementation was concentrated on **24–25 October 2026**, after the originally planned timeframe. The chart uses blue for planned phases, teal for documented work, and amber hatching for evaluation/report work still in progress at the 25 October checkpoint. The panels use **separate horizontal time scales within the same year** so both the multi-week plan and two-day actual activity are legible. Approximate phase boundaries are transcribed from the Milestone 1 graphic and are not exact task timestamps.
 
-| M1 phase / planned sequence | Actual evidence in M2 | Status / variance |
+| Milestone 1 planned phase | Observed Milestone 2 work | 25 October checkpoint |
 |---|---|---|
-| 1. Project setup and planning | Flutter/Android/VS Code/GitHub and Scrumban board established 24 Oct 2026 | Implemented later than dated M1 Gantt |
-| 2. Core functionality: timer, SQLite, distractions, reflection | Timer and SQLite tested; Home/Reflection/History Android journey verified 25 Oct; CI #3 green on a764919 | Core screens working; interruption recovery needs checking |
-| 3. Advanced: weekly insights, streaks, local notifications | Insights/streak source added 25 Oct; real-data chart needs a manual cross-check; local reminders/settings outstanding | Partial |
-| 4. Quality assurance and testing | GitHub CI #3 green, 20 tests before later updates; later test counts require a fresh run; screen checks by developer | Partial: accessibility, offline and measured performance pending |
-| 5. Final evaluation and reporting | Report draft and rubrics available; final as-built diagrams, quantitative ISO/IEC 25010 and PACMAD evaluation, results/conclusions needed | Not complete |
+| Setup and planning | Flutter/Android emulator, VS Code, GitHub repo, WIP-2 Scrumban and CI configured on 24 Oct | Completed |
+| Core features | Session timer and local SQLite on 24 Oct; distraction/reflection/History integrated and verified by 25 Oct | Completed in tested user journey |
+| Advanced features | Weekly insights, streaks, Settings and scheduled local reminders by 25 Oct | Implemented; scheduled reminder independently seen |
+| Testing and accessibility | Unit/widget regression suite, airplane-mode checks, 15-minute end-to-end run, enlarged-font fixes on 25 Oct | 58 tests passing, CI #6 green at code checkpoint |
+| Evaluation and final report | Developer verification gathered; UML and README corrected on 25 Oct | ISO/PACMAD analysis and final report still to complete |
 
-## Scrumban and retrospective — factual notes to develop
+## Scrumban reflection
 
-- Workflow: Backlog → Ready → In Progress (WIP limit 2) → In Review → Done.
-- Iteration 1 (24 Oct 2026): Set up repository, CI, SQLite foundations and timer tests; clear Android/Windows setup issues. Record actual Git commits and screenshots as evidence.
-- Iteration 2 (25 Oct 2026): Connected session, reflection and history flow; added insights/streak logic and iterated warm, more accessible UI through developer feedback. Reworked sound playback to a **non-functional future-work preview** to reduce plugin/debugging risk.
-- Retrospective: The flexible Scrumban process accommodated rapid scope changes, but concentrated implementation in the final days compressed evaluation time. Do not invent stand-ups or earlier sprint dates.
-- Evidence still needed: screenshot of updated board with WIP limit and issue states; screenshot of final CI; git history; final Gantt with **actual dates clearly separate** from the M1 planned baseline; real verification numbers.
+Development was organised into two short dated iterations rather than multi-week Scrum sprints. Iteration 1 on **24 October** focused on delivery foundations, timer and persistence. Iteration 2 on **25 October** focused on integration, UI, reminders, regression checks and architecture corrections. The board workflow is **Backlog → Ready → In Progress → In Review → Done**, with **WIP limit 2** in In Progress. The initial design over-specified separate Presenters; implementation consolidated distraction handling in SessionPresenter. Re-scoping audio to a preview prevented an unrelated dependency from jeopardising release checks. Late integration compressed time for non-developer testing and performance profiling—an explicit process limitation to discuss under evaluation and recommendations.
 
-## Planned-versus-actual graphic instructions
+## Accuracy boundaries
 
-Create a *two-lane timeline* in the report: upper lane = original M1 plan, clearly labelled **M1 plan (Aug–Oct 2025, as submitted)**; lower lane = actual M2 work (24–25 Oct 2026, plus any later verified dates). Because the dates are from different years, **do not overlay these as if they were concurrent**. A paired table or small-multiple Gantt is more honest than one bar chart on a shared date axis.
+- Local tests and CI results are from the user's reported screenshots/terminal runs; the graph does not imply external verification.
+- The 15-minute duration was checked against a phone timer, but no exact deviation was recorded, so avoid "0-second error" or numerical accuracy claims.
+- iOS and physical-device quality measures have not been tested.
+- The final documentation commit may differ from the last fully tested code commit `8eab48b`; verify the final repository state at submission.
+- No meetings, external testers, planned sprint reviews or earlier implementation dates were fabricated.
+
+**Report figure:** `docs/process/evidence/16_Planned_vs_Actual_Gantt.png`  
+**Suggested caption:** *Figure X. Milestone 1 proposed phase schedule and documented Milestone 2 implementation, displayed on separate time scales within 2026.*

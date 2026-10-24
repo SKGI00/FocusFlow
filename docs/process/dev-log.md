@@ -113,3 +113,38 @@ Milestone 1 contained an architectural inconsistency between the MVP class diagr
 - SQLite integration with the timer.
 - Distraction logging, reflection, history and other planned screens.
 - Updated UML diagrams and further usability evaluation.
+
+
+---
+
+## 25 October 2026 — Integration, Android verification and final design documentation
+
+**Iteration 2 checkpoint (developer record).** This entry updates—not retrospectively rewrites—the earlier 24 October development stages and provisional outstanding-item lists.
+
+### Implemented and demonstrated
+
+- Completed the Home → session → distraction → optional reflection → History journey in the Android emulator. Study tips, weekly insights and gentle streaks are implemented.
+- Enabled and verified local, optional Android scheduled reminders, including a notification arriving at the configured 06:04 NZDT time. Settings and preferred duration persist.
+- Verified offline operation in airplane mode, session completion, saving a reflection, and retrieving saved History after reopening.
+- Found two real enlarged-font overflows in Reflection and Insights; corrected both and visually retested the layouts.
+- Ran `flutter analyze` (no issues) and **58 local automated tests (all passing)**. GitHub Actions **CI #6** was reported green for the accessibility-fix commit `8eab48b`. Later README/UML documentation was pushed; capture a CI check for that newer commit before calling it the final tested revision.
+- Completed an additional developer-performed **15-minute timed Android session**, checking its duration against a phone timer. Also checked distraction logging, pause/resume, background behaviour, reflection prompt and saved results, and persistence of default duration. All tested interactions were reported working. **Exact timing deviations, task completion seconds and tap counts were not recorded and must not be invented.**
+- Replaced the default starter README and updated the UML diagrams based on the implemented MVP structure. The user confirmed the documentation commit/push and moved UML issue #2 to Done.
+
+### Scope and design decisions
+
+- Milestone 1 specified the MVP (Model–View–Presenter) architecture. Milestone 2 retained it, but consolidated one-tap distraction handling into `SessionPresenter` rather than implementing a separate `DistractionPresenter`; the implemented Home navigation is widget-based. Record these as design refinements and compare the diagrams explicitly.
+- Focus Sounds is a **preview/concept only**, not an implemented audio playback feature. Further audio plugin work was declined to preserve required core functionality and regression-testing time.
+- For in-progress sessions left by exiting through Back or closing the app, no crash or database-loss event was established. Minimising the app did not reproduce an issue. Session recovery after deliberate exit is a limitation/design choice rather than an established unexpected-crash defect.
+- Only Android emulator behaviour was verified; iOS and physical lower-end device performance remain untested.
+
+### Scrumban retrospective
+
+**Iteration 1 (24 October):** Establish working toolchain, version control, CI, SQLite and MVP timer core. **Iteration 2 (25 October):** Complete the user journey, reminders, accessibility fixes, integration checks and current architecture documentation. WIP limit: two active tasks. Development was compressed relative to the original proposed schedule, leaving less time for independent usability participants, systematic performance profiling and physical-device validation. Automated tests and small increments reduced regression risks while scope was constrained.
+
+### Remaining before submission
+
+- Final evaluation analysis using **ISO/IEC 25010** and **PACMAD**, with clear distinction between functional passes and absent quantitative usability data.
+- Final accessible, evidence-linked report (up to 4,000 words including references), updated Scrumban screenshot and repository checks, and final source ZIP submission.
+
+**Evidence integrity:** Dates and evidence above reflect user-provided screen verification and checkpoints. Do not treat this addendum as independent testing by an external participant.
