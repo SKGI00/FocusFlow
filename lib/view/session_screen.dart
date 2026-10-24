@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../app_services.dart';
 import '../presenter/session_presenter.dart';
+import '../settings/focus_settings.dart';
 import '../utils/focus_duration.dart';
 import 'flow_buddy.dart';
 import 'reflection_screen.dart';
@@ -26,6 +27,23 @@ class _SessionScreenState extends State<SessionScreen> {
   // Visual preview only: no audio dependency, assets, or playback.
   bool _soundOptionsExpanded = false;
   String _previewSound = 'Off';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDefaultDuration();
+  }
+
+  Future<void> _loadDefaultDuration() async {
+    try {
+      final settings = await FocusSettingsRepository.instance.load();
+      if (mounted && _presenter.status == SessionStatus.ready) {
+        _presenter.setDuration(settings.defaultMinutes);
+      }
+    } catch (_) {
+      // Keep the existing 30-minute default if preferences cannot be read.
+    }
+  }
 
   @override
   void dispose() {

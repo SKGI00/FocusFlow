@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../app_services.dart';
 import '../model/models.dart';
+import '../settings/focus_settings.dart';
 import 'flow_buddy.dart';
 import 'history_screen.dart';
 import 'insights_screen.dart';
 import 'session_screen.dart';
+import 'settings_screen.dart';
 import 'tips_screen.dart';
 
 /// A reassuring first screen with one primary action and low reading load.
@@ -18,12 +20,110 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      _refreshProgress();
+    }
+  }
+
   late Future<List<Session>> _sessions = widget.services.sessions.all();
+  late Future<_ReminderData> _reminder = _readReminder();
+
+  Future<_ReminderData> _readReminder() async {
+    final repository = FocusSettingsRepository.instance;
+    final settings = await repository.load();
+    final dismissed = await repository.dismissedOn();
+    final sessions = await widget.services.sessions.all();
+    return _ReminderData(
+      show: shouldOfferInAppReminder(
+        settings: settings,
+        now: DateTime.now(),
+        sessions: sessions,
+        dismissedOn: dismissed,
+      ),
+    );
+  }
+
+  Future<void> _openSettings() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+    );
+    if (mounted) _refreshProgress();
+  }
+
+  Future<void> _dismissReminder() async {
+    try {
+      await FocusSettingsRepository.instance.dismissForToday(DateTime.now());
+      if (mounted) _refreshProgress();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not dismiss the reminder.')),
+        );
+      }
+    }
+  }
+
+  Widget _reminderCard(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return FutureBuilder<_ReminderData>(
+      future: _reminder,
+      builder: (context, snapshot) {
+        if (snapshot.data?.show != true) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(top: 14),
+          child: Card(
+            color: colors.secondaryContainer,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('A gentle nudge 🌱'),
+                  const SizedBox(height: 8),
+                  const Text('Feel like a short focus session?'),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 6,
+                    children: [
+                      TextButton(
+                        onPressed: _dismissReminder,
+                        child: const Text('Not today'),
+                      ),
+                      FilledButton(
+                        onPressed: _openFocus,
+                        child: const Text('Start focus'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   void _refreshProgress() {
     setState(() {
       _sessions = widget.services.sessions.all();
+      _reminder = _readReminder();
     });
   }
 
@@ -70,6 +170,14 @@ class _HomeScreenState extends State<HomeScreen> {
           'FocusFlow',
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
+        actions: [
+          IconButton(
+            key: const ValueKey('open-settings'),
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Settings',
+            onPressed: _openSettings,
+          ),
+        ],
       ),
       body: SafeArea(
         child: ListView(
@@ -108,6 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
+            _reminderCard(context),
             const SizedBox(height: 24),
             Text('Your progress', style: text.titleLarge),
             const SizedBox(height: 10),
@@ -266,4 +375,10 @@ class _HomeLink extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ReminderData {
+  const _ReminderData({required this.show});
+
+  final bool show;
 }
